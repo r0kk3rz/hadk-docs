@@ -89,16 +89,18 @@ Congratulations if you have got gui working. During the debugging process you wi
 #### SIM card not detected:
 This often causes a bootloop
 Cellular Modem bringup is now in HADK v1.1.1 section 13.3
+
 Additional checks:
-Replicate /dev/block structure from Android as closely as possible (for rild to be able to access the modem partition)
-Run ls -lR /dev/block in CM
-Run ls -lR /dev/block in Sailfish OS
+- Replicate /dev/block structure from Android as closely as possible (for rild to be able to access the modem partition)
+- Run ls -lR /dev/block in CM
+- Run ls -lR /dev/block in Sailfish OS
+
 diff the two outputs (this is WIP - android's toolbox ls might need more parameters to produce a comparable output)
 If you see differences you need to add custom udev rules to create the correct /dev/block structure
 (added automatically since 2016-12-10) For devices with /dev/block/platform/msm_sdcc.1/by-name/ paths (msm_sdcc.1 can be different) add to $ANDROID_ROOT/rpm/ these paths and files with contents, and it most probably will help (but still paste your diff to the IRC channel):
 
-https://github.com/mer-hybris-kis3/droid-config-kis3/blob/master/sparse/lib/udev/platform-device
-https://github.com/mer-hybris-kis3/droid-config-kis3/blob/master/sparse/lib/udev/rules.d/998-droid-system.rules
+- https://github.com/mer-hybris-kis3/droid-config-kis3/blob/master/sparse/lib/udev/platform-device
+- https://github.com/mer-hybris-kis3/droid-config-kis3/blob/master/sparse/lib/udev/rules.d/998-droid-system.rules
 
 (added automatically since 2017-06-03) Some devices (at least all hybris-13.0 based ports) have /dev/block/bootdevice/by-name/ as /dev/block structure in CM in which case you need to add the following line to the end of the 998-droid-system.rules file in the last link:
 
@@ -106,14 +108,12 @@ https://github.com/mer-hybris-kis3/droid-config-kis3/blob/master/sparse/lib/udev
 
 If you have logcat and journal error messages suggesting that RIL/ofono can't power the modem on and you have a qcom chipset, have a look in your init.qcom.rc for lines that power it on when the boot animation (bootanim) stops. If you have those, try this (paths may need correcting): https://github.com/stephgosling/android_device_htc_m7-common/commit/9f4abdca65356090e6dd6f0356c5cf4a1870aa5f (note the typo there in the chown line!)
 
-If you have pil-q6v5-mss fc880000.qcom,mss: modem: Failed to locate modem.mdt in your dmesg then try this steps:
-Mask firmware.mount
+If you have `pil-q6v5-mss fc880000.qcom,mss: modem: Failed to locate modem.mdt` in your `dmesg` then try this steps:
 
-add this service to /lib/systemd/system/ https://pastebin.com/9tbUtVnC
-
-create symlink to that service in /lib/systemd/system/local-fs.target.wants/ 
-
-add /usr/bin/droid/extract_firmware.sh with this content https://pastebin.com/bgphKn4z
+- Mask firmware.mount
+- add this service to /lib/systemd/system/ https://pastebin.com/9tbUtVnC
+- create symlink to that service in /lib/systemd/system/local-fs.target.wants/ 
+- add /usr/bin/droid/extract_firmware.sh with this content https://pastebin.com/bgphKn4z
  
 -------------------------------------------------------------------------------------------------------------
  
@@ -342,15 +342,16 @@ Save the file and recompile the kernel
  
 -------------------------------------------------------------------------------------------------------------
  
-Failed at step OOM_ADJUST spawning /usr/libexec/mapplauncherd/booster-qt5: Permission denied
-Causes for example the failure of startup wizard on first boot
-try to revert kernel change in fs/proc/base.c
-https://github.com/mer-hybris/android_kernel_oneplus_msm8974/commit/0ed87d7f3cf7d3388f09bd264a856ad9efc564a3
+#### Failed at step OOM_ADJUST spawning /usr/libexec/mapplauncherd/booster-qt5: Permission denied
+Causes for example the failure of startup wizard on first boot:
+- try to revert kernel change in fs/proc/base.c
+- https://github.com/mer-hybris/android_kernel_oneplus_msm8974/commit/0ed87d7f3cf7d3388f09bd264a856ad9efc564a3
+
 ping on the IRC if this worked for you :)
  
 -------------------------------------------------------------------------------------------------------------
  
-UI is shown in tablet mode
+#### UI is shown in tablet mode
 
 needed anymore
 
@@ -362,8 +363,9 @@ journalctl --no-pager | grep QSizeF
  
 If the values are not realistic set the screen size in your droid-hal-device.conf
 (only works since Sailfish OS 2.0.1)
-QT_QPA_EGLFS_PHYSICAL_WIDTH=<in mm>
-QT_QPA_EGLFS_PHYSICAL_HEIGHT=<in mm>
+
+    QT_QPA_EGLFS_PHYSICAL_WIDTH=<in mm>
+    QT_QPA_EGLFS_PHYSICAL_HEIGHT=<in mm>
  
 -------------------------------------------------------------------------------------------------------------
 
@@ -410,13 +412,16 @@ Good measure is to have bare necessities of a daily-driver for most people: LED,
 You should be building on OBS (guide above)
 
 Then add these two files (change contents apropriately)
-https://github.com/mer-hybris/droid-config-hammerhead/blob/master/sparse/var/lib/flash-partition/device-info
-Change PART_REAL_1 to match "boot" partition of your device
-Change CPUCHECK_STRING to match the Hardware field in /proc/cpuinfo
-https://github.com/mer-hybris/droid-config-hammerhead/blob/master/sparse/var/lib/platform-updates/flash-bootimg.sh
+- https://github.com/mer-hybris/droid-config-hammerhead/blob/master/sparse/var/lib/flash-partition/device-info
+
+Change `PART_REAL_1` to match "boot" partition of your device
+Change `CPUCHECK_STRING` to match the Hardware field in `/proc/cpuinfo`
+- https://github.com/mer-hybris/droid-config-hammerhead/blob/master/sparse/var/lib/platform-updates/flash-bootimg.sh
  Don't forget to make it executable
+ 
 Port over to your device this line:
-https://github.com/mer-hybris/droid-hal-hammerhead/blob/ca102d255f1b6f274e2768e8cbd4ad9c631890e9/droid-hal-hammerhead.spec#L12
+- https://github.com/mer-hybris/droid-hal-hammerhead/blob/ca102d255f1b6f274e2768e8cbd4ad9c631890e9/droid-hal-hammerhead.spec#L12
+
 And this commit (only if MultiROM exists or in-the-works for your device):
 https://github.com/mer-hybris/droid-config-hammerhead/commit/cb39670de095b914aea23d6ce0e633d295493016
 Don't forget to commit and tag so configs rebuild on OBS :)
@@ -425,14 +430,14 @@ Then you can test how an updated kernel package flashes itself automatically wit
 For your users to actually use OTA, you should move it to :testing (on IRC ask sledges to create nemo:testing:hw:$VENDOR:$DEVICE), to still be able to play (i.e. break things) in your :devel
 
 Get maintainership on that :testing repo
-Add cibot as maintainer, then via IRC ask lbt to "patternise" that repo too
-Click on Repositories tab in your nemo:testing:hw:$VENDOR:$DEVICE
-Then "Add repositories"
-Then "pick one via advanced interface"
-Start typing "sailfishos", then pick the version you want OTA to be available for in format "sailfishos:X.Y.Z.W"
-Choose "latest_$PORT_ARCH" for your architecture
-Make the "Name" to match exactly "sailfishos_X.Y.Z.W"
-Add nemo:testing:hw:common to that as additional repo just like you did with :devel: above
+- Add cibot as maintainer, then via IRC ask lbt to "patternise" that repo too
+- Click on Repositories tab in your nemo:testing:hw:$VENDOR:$DEVICE
+- Then "Add repositories"
+- Then "pick one via advanced interface"
+- Start typing "sailfishos", then pick the version you want OTA to be available for in format "sailfishos:X.Y.Z.W"
+- Choose "latest_$PORT_ARCH" for your architecture
+- Make the "Name" to match exactly "sailfishos_X.Y.Z.W"
+- Add nemo:testing:hw:common to that as additional repo just like you did with :devel: above
 
 Ensure NO webhooks point to :testing ! Cross-check with https://webhook.merproject.org/webhook
 
@@ -447,10 +452,12 @@ Once the next Sailfish OS release comes out and your port adopts it, you can cre
 -------------------------------------------------------------------------------------------------------------
  
 #### Access Android's virtual SD card (needs more massaging)
+
 Has received mixed feedback of working/not-working. Replicate onto your device accordingly:
-https://github.com/mer-hybris/droid-hal-hammerhead/commit/ca102d255f1b6f274e2768e8cbd4ad9c631890e9
-https://github.com/mer-hybris/droid-config-hammerhead/blob/master/sparse/usr/bin/droid/android-links.sh
-https://github.com/mer-hybris/droid-config-hammerhead/commit/e15591b98380c95e5be96bf9f386278b9825b5f3
+
+- https://github.com/mer-hybris/droid-hal-hammerhead/commit/ca102d255f1b6f274e2768e8cbd4ad9c631890e9
+- https://github.com/mer-hybris/droid-config-hammerhead/blob/master/sparse/usr/bin/droid/android-links.sh
+- https://github.com/mer-hybris/droid-config-hammerhead/commit/e15591b98380c95e5be96bf9f386278b9825b5f3
  
 -------------------------------------------------------------------------------------------------------------
  
@@ -526,55 +533,65 @@ add build of qt5-feedback-haptics-ffmemless in build_packages.sh, and comment ou
     mv RPMS/*.rpm $ANDROID_ROOT/droid-local-repo/$DEVICE/
     createrepo $ANDROID_ROOT/droid-local-repo/$DEVICE
  
-"less" package is needed for perf to format its output. You can find it here: http://repo.merproject.org/obs/nemo:/testing:/hw:/common/sailfish_latest_armv7hl/ 
+"less" package is needed for perf to format its output. You can find it here: 
+- http://repo.merproject.org/obs/nemo:/testing:/hw:/common/sailfish_latest_armv7hl/ 
  
 ----------------------------------------------------------------------------------------------------------
 
 #### FM Radio support
 
-Needs a device with suitable FM radio hardware and a kernel defconfig containing CONFIG_RADIO_IRIS=y and CONFIG_RADIO_IRIS_TRANSPORT=m (or =y)
-If your CONFIG_RADIO_IRIS_TRANSPORT is built-in then this is not needed, however if you have problems try building CONFIG_RADIO_IRIS_TRANSPORT as a module: add (adapt to fit your device if needed) 
+Needs a device with suitable FM radio hardware and a kernel defconfig containing `CONFIG_RADIO_IRIS=y` and `CONFIG_RADIO_IRIS_TRANSPORT=m (or =y)`
+
+If your `CONFIG_RADIO_IRIS_TRANSPORT` is built-in then this is not needed, however if you have problems try building `CONFIG_RADIO_IRIS_TRANSPORT` as a module: add (adapt to fit your device if needed) 
 - https://github.com/mlehtima/droid-config-fp2-sibon/blob/master/sparse/lib/systemd/system/droid-fm-up.service
 - https://github.com/mlehtima/droid-config-fp2-sibon/blob/master/sparse/lib/systemd/system/bluetooth.service.wants/droid-fm-up.service
 
-Sometimes device permissions are wrong (root owner), in this case add https://github.com/mlehtima/droid-config-fp2-sibon/blob/master/sparse/lib/udev/rules.d/999-droid-fm.rules to your droid-configs repo (or directly to device for testing)
-
-Add qt5-qtmultimedia-plugin-mediaservice-irisradio to patterns (or install directly to device for testing)
-
-Add https://github.com/mlehtima/droid-config-fp2-sibon/blob/master/sparse/etc/pulse/xpolicy.conf.d/fmradio.conf to your droid-configs repo (or directly to device for testing)
+Sometimes device permissions are wrong (root owner), in this case:
+- Add https://github.com/mlehtima/droid-config-fp2-sibon/blob/master/sparse/lib/udev/rules.d/999-droid-fm.rules to your droid-configs repo (or directly to device for testing)
+- Add qt5-qtmultimedia-plugin-mediaservice-irisradio to patterns (or install directly to device for testing)
+- Add https://github.com/mlehtima/droid-config-fp2-sibon/blob/master/sparse/etc/pulse/xpolicy.conf.d/fmradio.conf to your droid-configs repo (or directly to device for testing)
 
 (pre-2.0.2) Update packages from http://repo.merproject.org/obs/nemo:/devel:/hw:/common/sailfish_latest_armv7hl/ (for building new images add this to your .ks file as described elsewhere in FAQ)
 
 Starting from Sailfish OS 2.0.2 FM radio Media app plugin jolla-mediaplayer-radio can be added to patterns.
 
-(pre-2.0.2) For FM radio testing harbour-piratefm can be obtained from http://repo.merproject.org/obs/home:/kimmoli/sailfish_latest_armv7hl/
+(pre-2.0.2) For FM radio testing harbour-piratefm can be obtained from 
+- http://repo.merproject.org/obs/home:/kimmoli/sailfish_latest_armv7hl/
 
 --------------------------------------------------------------------------------------------------------------
 
 #### Bluetooth for Qualcomm devices
 
-Enable CONFIG_BT_HCISMD in the kernel defconfig. If it is not present in your kernel, then make these changes (https://github.com/adeen-s/android_kernel_cyanogen_msm8916/commit/4627f4f6f5d886433ff1f9639dc18fe8a006fd00 )
+Enable `CONFIG_BT_HCISMD` in the kernel defconfig. If it is not present in your kernel, then make these changes:
+- https://github.com/adeen-s/android_kernel_cyanogen_msm8916/commit/4627f4f6f5d886433ff1f9639dc18fe8a006fd00 
+
 Add these files to sparse (or directly to device) and modify them as needed for your device -->
-https://github.com/adeen-s/droid-config-wt88047/blob/master/sparse/usr/bin/droid/droid-hcismd-up.sh
-https://github.com/adeen-s/droid-config-wt88047/blob/master/sparse/lib/systemd/system/droid-hcismd-up.service
-https://github.com/adeen-s/droid-config-wt88047/blob/master/sparse/lib/systemd/system/bluetooth.service.wants/droid-hcismd-up.service
+- https://github.com/adeen-s/droid-config-wt88047/blob/master/sparse/usr/bin/droid/droid-hcismd-up.sh
+- https://github.com/adeen-s/droid-config-wt88047/blob/master/sparse/lib/systemd/system/droid-hcismd-up.service
+- https://github.com/adeen-s/droid-config-wt88047/blob/master/sparse/lib/systemd/system/bluetooth.service.wants/droid-hcismd-up.service
+
 Bluetooth Should now work. If it doesn't then make sure the permissions are set correctly and all paths mentioned in above files point to valid locations.
+
 If you are still having trouble, check to see if there is a service that configures bluetooth and disable/comment it.  Eg, config_bluetooth in init.qcom.rc
  
 --------------------------------------------------------------------------------------------------------------
 
 #### Bluetooth for Broadcomm devices
-Enable CONFIG_BT_HCIUART_H4 in the kernel defconfig. These devices typically are attached on high speed uart to something like /dev/ttyHS0
-Symlink your firmware file to /etc/firmware. 
+Enable `CONFIG_BT_HCIUART_H4` in the kernel defconfig. These devices typically are attached on high speed uart to something like /dev/ttyHS0
+
+- Symlink your firmware file to /etc/firmware. 
 eg. https://github.com/r0kk3rz/droid-config-scorpion_windy/blob/master/sparse/etc/firmware/BCM4350C0.hcd
-You need to make sure the firmware symlink filename matches your bluetooth device name, which can be found by stracing hciattach
-Build rfkill middleware and add to patterns
+
+- You need to make sure the firmware symlink filename matches your bluetooth device name, which can be found by stracing hciattach
+Build rfkill middleware and add to patterns:
+```
 rpm/dhd/helpers/build_packages.sh --mw=https://github.com/mer-hybris/bluetooth-rfkill-event --spec=rpm/bluetooth-rfkill-event-hciattach.spec
-add configs: https://github.com/mer-hybris/droid-config-f5121/commit/afa01bdf4bdb8a0d16bbd34996ec7cac34bbbc55
+```
+- add configs: https://github.com/mer-hybris/droid-config-f5121/commit/afa01bdf4bdb8a0d16bbd34996ec7cac34bbbc55
 
 --------------------------------------------------------------------------------------------------------------
 
-Error During end of kernel build
+#### Error During end of kernel build
 ``` 
 Exception in thread "main" java.lang.NoClassDefFoundError: org/bouncycastle/jce/provider/BouncyCastleProvider
         at java.lang.Class.getDeclaredMethods0(Native Method)
@@ -674,7 +691,7 @@ add the file /system/build.prop to the target with the contents
 
 ----------------------------------------------------------------------------------------------------------------
 
-libdsyscalls is cause of segfault after r or minimer
+#### libdsyscalls is cause of segfault after r or minimer
 
 Usually means that in your device repo, its enabling clang somewhere, do a grep and disable clang and rebuild :)
 
@@ -788,14 +805,19 @@ Devices that have qseecomd usually have issues getting to UI so its best to disa
 
 #### Updating submodules
 Submodule locations:
+```
 rpm/dhd
 hybris/droid-configs/droid-configs-device
 hybris/droid-hal-version-fp2-sibon/droid-hal-version
-In the each folder check remote name using git remote -v 
+```
+
+In the each folder check remote name using `git remote -v `
+
 Run (replace remote_name with the name you found out in previous step)
+```
 git fetch remote_name
 git pull remote_name master
-
+```
 --------------------------------------------------------------------------------------------------------------
 
 #### Issues with ngfd or ngfd-plugin-droid-vibrator or pulseaudio
@@ -824,9 +846,11 @@ when you run the whole build_packages.sh after this skip the ngfd-plugin-native-
 --------------------------------------------------------------------------------------------------------------
 
 #### Issues with pulseaudio module build
-downgrade hybris/droid-configs/droid-configs-device as described above by going to the folder and running "git reset --hard 769864929261d14ba2380323ddced4e325d5c819"
+downgrade hybris/droid-configs/droid-configs-device as described above by going to the folder and running 
+```
+git reset --hard 769864929261d14ba2380323ddced4e325d5c819
 build_packages.sh --configs
-
+```
 --------------------------------------------------------------------------------------------------------------
 
 #### Determine which is the touch event
@@ -844,8 +868,10 @@ Also update rpm/dhd submodule in case you have an older version
 --------------------------------------------------------------------------------------------------------------
 
 #### No installroot directory after droid-configs build when preparing .ks file
-rpm2cpio droid-local-repo/$DEVICE/droid-configs/droid-config-$DEVICE-ssu-kickstarts-1-1.armv7hl.rpm | cpio -idmv
-in the sed command use $ANDROID_ROOT/usr/share/kickstarts/$KS instead of $ANDROID_ROOT/hybris/droid-configs/installroot/usr/share/kickstarts/$KS
+
+    rpm2cpio droid-local-repo/$DEVICE/droid-configs/droid-config-$DEVICE-ssu-kickstarts-1-1.armv7hl.rpm | cpio -idmv
+
+in the sed command use `$ANDROID_ROOT/usr/share/kickstarts/$KS` instead of `$ANDROID_ROOT/hybris/droid-configs/installroot/usr/share/kickstarts/$KS`
 
 --------------------------------------------------------------------------------------------------------------
 
@@ -861,7 +887,9 @@ In Platform SDK:
 
 #### Using backported Bluetooth drivers in 3.4 kernel for devices with Qualcomm bluetooth chip using hci_smd driver
 Generic guide: https://bluez-android.github.io/#building-own-kernel
+
 Sailfish specific guide:
+
 Build your kernel with patches from https://github.com/bluez-android/misc/tree/master/patches-kernel and with following flags defined in defconfig
 
     CONFIG_BT=m
@@ -872,13 +900,16 @@ Build your kernel with patches from https://github.com/bluez-android/misc/tree/m
 
 NOTE: Patches may not be required for >= 3.18
 In your local_manifest, add 
-<project name="mlehtima/backports-bluetooth" path="external/backports-bluetooth" revision="master" />
+```<project name="mlehtima/backports-bluetooth" path="external/backports-bluetooth" revision="master" />```
 run repo sync in HABUILD_SDK
+
 Build backported drivers by running make backports in HABUILD_SDK while in $ANDROID_ROOT folder
 if you get `"external/backports-bluetooth/drivers/bluetooth/hci_smd.c:35:26: fatal error: mach/msm_smd.h: No such file or directory" `error change 
-#include <mach/msm_smd.h> to #include <soc/qcom/smd.h> in that file
+`#include <mach/msm_smd.h> to #include <soc/qcom/smd.h|>` in that file
+
 IMPORTANT: if you rerun make hybris-hal at any time you will always have to rerun make backports after that
 Package droid-hal as usual
+
 Change your config repo to use bluez5 https://github.com/mlehtima/droid-config-fp2-sibon/commit/1cba868fdcfebaffc14a084c5d82fbf2e4339173
 Rebuild config rpms and image
 
@@ -887,23 +918,28 @@ Rebuild config rpms and image
 #### Graphics performance improvements
 Test framerate display (can be enabled in Settings->Developer mode) when using some apps like gallery
 If the top view is mostly red try to set QPA_HWC_IDLE_TIME=5 in /var/lib/environment/compositor/droid-hal-device.conf
-Run systemctl restart user@100000 using devel-su
+Run 
+```systemctl restart user@100000 using devel-su```
+
 Test framerate display again and if you see more green than before you should use the value
+
 Different values can be tested but value 5 has been found to be helping on some devices
-On some devices also setting QPA_HWC_BUFFER_COUNT=3 in /var/lib/environment/compositor/droid-hal-device.conf helps with graphics performance
+
+On some devices also setting `QPA_HWC_BUFFER_COUNT=3` in `/var/lib/environment/compositor/droid-hal-device.conf` helps with graphics performance
 
 --------------------------------------------------------------------------------------------------------------
 
 #### Black gallery pictures and no browser content/browser crash:
 Add this to droid-hal .spec file and rebuild droid-hal and libhybris packages (remove the sources from hybris/mw/libhybris to make sure a clean rebuild is done):
+```
 %define android_config \
 #define WANT_ADRENO_QUIRKS 1\
 %{nil}
-
+```
 --------------------------------------------------------------------------------------------------------------
 
 #### Problems with tfa9890:
-Copy /system/etc/firmware to /etc/firmware. Symlink or mount doesn't work! (But why?)
+Copy `/system/etc/firmware` to `/etc/firmware`. Symlink or mount doesn't work! (But why?)
 
 --------------------------------------------------------------------------------------------------------------
 
